@@ -3,7 +3,7 @@ services:
     image: "clickhouse/clickhouse-server:24.10.2.80"
     user: "101:101"
     volumes:
-      - ./sampleSchema:/var/lib/clickhouse/format_schemas
+      - ./clickhouseConfig/capnpSchema:/var/lib/clickhouse/format_schemas
     ports:
       - "8123:8123"
       - "9000:9000"
@@ -13,4 +13,18 @@ services:
       - "9001:9000"
       - "9002:9001"
     command: server /data --console-address ":9001"
-
+  init-data:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: |
+      /bin/sh -c "
+        # Need to sleep a bit since minio may not ready yet
+        sleep 5;
+        mc alias set localminio http://minio:9000 minioadmin minioadmin;
+        mc mb localminio/msg;
+        mc cp -r /tmp/msg/ localminio/msg/
+        exit 0;
+      "
+    volumes:
+      - ./msg:/tmp/msg
