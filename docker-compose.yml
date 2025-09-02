@@ -1,0 +1,16 @@
+services:
+  clickhouse:
+    image: "clickhouse/clickhouse-server:24.10.2.80"
+    user: "101:101"
+    volumes:
+      - ./sampleSchema:/var/lib/clickhouse/format_schemas
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+  minio: 
+    image: "minio/minio"
+    ports:
+      - "9001:9000"
+      - "9002:9001"
+    command: server /data --console-address ":9001"
+
